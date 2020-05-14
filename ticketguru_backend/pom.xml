@@ -9,18 +9,13 @@
   </parent>
   <groupId>fi.rbmk</groupId>
   <artifactId>ticketguru</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.8.1-SNAPSHOT</version>
   <name>TicketGuru</name>
   <description>TicketGuru ticket sale system</description>
   <properties>
     <java.version>1.8</java.version>
   </properties>
   <dependencies>
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-rest</artifactId>
-      <scope>compile</scope>
-    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-hateoas</artifactId>
@@ -68,7 +63,7 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-data-jdbc</artifactId>
+      <artifactId>spring-boot-starter-data-rest</artifactId>
       <scope>compile</scope>
     </dependency>
   </dependencies>

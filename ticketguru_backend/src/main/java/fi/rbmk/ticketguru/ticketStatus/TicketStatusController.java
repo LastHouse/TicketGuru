@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set;
 
 import javax.validation.ConstraintViolation;
-import javax.validation.Valid;
 import javax.validation.Validation;
 import javax.validation.Validator;
 
@@ -33,7 +32,7 @@ import fi.rbmk.ticketguru.constraintViolationParser.ConstraintViolationParser;
 import fi.rbmk.ticketguru.ticket.*;
 
 @RestController
-@RequestMapping(value = "/api/ticketstatuses", produces = "application/hal+json")
+@RequestMapping(value = "/api/ticketStatuses", produces = "application/hal+json")
 public class TicketStatusController {
 
     @Autowired
@@ -44,8 +43,13 @@ public class TicketStatusController {
     private static Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
     @PostMapping(produces = "application/hal+json")
-    public ResponseEntity<?> add(@Valid @RequestBody TicketStatus newTicketStatus) {
+    public ResponseEntity<?> add(@RequestBody TicketStatus newTicketStatus) {
         try {
+            Set<ConstraintViolation<Object>> violations = validator.validate(newTicketStatus);
+            if (!violations.isEmpty()) {
+                ConstraintViolationParser constraintViolationParser = new ConstraintViolationParser(violations, HttpStatus.BAD_REQUEST);
+                return ResponseEntity.badRequest().body(constraintViolationParser.parse());
+            }
             TicketStatus ticketStatus = tSRepository.save(newTicketStatus);
             TicketStatusLinks links = new TicketStatusLinks(ticketStatus);
             ticketStatus.add(links.getAll());
@@ -57,7 +61,7 @@ public class TicketStatusController {
     }
 
     @PatchMapping(value = "/{id}", produces = "application/hal+json")
-    public ResponseEntity<?> edit(@Valid @RequestBody TicketStatus newTicketStatus, @PathVariable Long id) {
+    public ResponseEntity<?> edit(@RequestBody TicketStatus newTicketStatus, @PathVariable Long id) {
         TicketStatus ticketStatus = tSRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Invalid ID: + id"));
         if (ticketStatus.getInvalid() != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot modify TicketStatus that is marked as deleted");

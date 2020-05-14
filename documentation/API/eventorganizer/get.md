@@ -56,7 +56,7 @@ Get all EventOrganizers the active User can access with current permission level
 ```
 </br>
 
-**Condition** : No EventOrganizers. (Miten tän saa tarkistettua? Pitääkö tuhota ensin kaikki tapahtumajärjestäjät?)
+**Condition** : No EventOrganizers.
 
 **Code** : `404 Not Found`
 

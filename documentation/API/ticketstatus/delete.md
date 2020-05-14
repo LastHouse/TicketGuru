@@ -40,7 +40,7 @@ Provide the URL of TicketStatus to be deleted e.g. https://rbmk-ticketguru-backe
     "timestamp": "LocalDateTime",
     "status": 404,
     "error": "Not Found",
-    "message": "No message available", (Kuuluuko tulla tällainen viesti, vai pitäisikö olla erilainen viesti?)
+    "message": "No message available"
     "path": "/api/ticketStatuses/"
 }
 ```

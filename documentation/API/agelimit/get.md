@@ -49,7 +49,7 @@ Get all AgeLimits the active User can access with current permission level.
 ```
 </br>
 
-**Condition** : No AgeLimits. (Miten tän saa tarkistettua? Pitääkö tuhota ensin kaikki ikärajat?)
+**Condition** : No AgeLimits.
 
 **Code** : `404 Not Found`
 

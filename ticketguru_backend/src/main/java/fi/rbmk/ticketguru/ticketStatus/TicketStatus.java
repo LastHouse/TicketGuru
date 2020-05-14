@@ -27,7 +27,7 @@ public class TicketStatus extends ResourceSupport {
 	@Column(name = "ticket_status_id")
 	private Long ticketStatus_id;
 
-	@NotEmpty(message = "Ticket status is required")
+	@NotEmpty(message = "Ticket status name is required")
 	@Length(max = 50)
 	@Column(name = "name")
 	private String name;

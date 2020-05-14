@@ -49,9 +49,8 @@ public class SaleEvent extends ResourceSupport {
 		super();
 	}
 
-	public SaleEvent(Long id, LocalDateTime dateTime, User user) {
+	public SaleEvent(User user) {
 		super();
-		this.saleEvent_id = id;
 		this.user = user;
 	}
 

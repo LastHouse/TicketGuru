@@ -48,7 +48,7 @@ Get all TicketTypes the active User can access with current permission level.
 ```
 </br>
 
-**Condition** : No TicketTypes. (Miten tän saa tarkistettua? Pitääkö tuhota ensin kaikki lipputyypit?)
+**Condition** : No TicketTypes.
 
 **Code** : `404 Not Found`
 

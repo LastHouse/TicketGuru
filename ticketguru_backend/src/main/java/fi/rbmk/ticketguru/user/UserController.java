@@ -7,7 +7,6 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolation;
-import javax.validation.Valid;
 import javax.validation.Validation;
 import javax.validation.Validator;
 
@@ -23,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,13 +51,23 @@ public class UserController {
     EventTicketRepository eTRepository;
 
     private static Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+    private static BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     @PostMapping(produces = "application/hal+json")
-    ResponseEntity<?> add(@Valid @RequestBody User newUser) {
+    ResponseEntity<?> add(@RequestBody User newUser) {
         try {
+            if (newUser.getUserGroup() == null && uGRepository.findAll().isEmpty()) {
+                newUser.setUserGroup(uGRepository.save(new UserGroup("admin")));
+            }
+            Set<ConstraintViolation<Object>> violations = validator.validate(newUser);
+            if (!violations.isEmpty()) {
+                ConstraintViolationParser constraintViolationParser = new ConstraintViolationParser(violations, HttpStatus.BAD_REQUEST);
+                return ResponseEntity.badRequest().body(constraintViolationParser.parse());
+            }
             if (newUser.getUserGroup().getInvalid() != null) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot link UserGroup that is marked as deleted");
             }
+            newUser.setPassword(encoder.encode(newUser.getPassword()));
             User user = uRepository.save(newUser);
             UserLinks links = new UserLinks(user);
             user.add(links.getAll());
@@ -74,8 +84,8 @@ public class UserController {
         if (user.getInvalid() != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot modify User that is marked as deleted");
         }
-        if (newUser.getPassword() != null && newUser.getPassword() != user.getPassword()) {
-            user.setPassword(newUser.getPassword());
+        if (newUser.getPassword() != null && encoder.encode(newUser.getPassword()) != user.getPassword()) {
+            user.setPassword(encoder.encode(newUser.getPassword()));
         }
         if (newUser.getName() != null && newUser.getName() != user.getName()) {
             user.setName(newUser.getName());

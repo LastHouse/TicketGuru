@@ -1,7 +1,5 @@
 package fi.rbmk.ticketguru.jwt;
 
-//import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.authority.AuthorityUtils;

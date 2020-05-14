@@ -73,6 +73,13 @@ public class User extends ResourceSupport {
 	public User(User user) {
 	}
 
+	public User(String username, String password, UserGroup userGroup) {
+		this.username = username;
+		this.password = password;
+		this.userGroup = userGroup;
+		this.active = true;
+	}
+
 	public User(String name, String username, String password, UserGroup userGroup, Boolean active) {
 		super();
 		this.name = name;

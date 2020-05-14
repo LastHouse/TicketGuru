@@ -2,6 +2,7 @@ package fi.rbmk.ticketguru.saleRow;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -50,6 +51,8 @@ public class SaleRowController {
     @Autowired
     TicketStatusRepository tsRepository;
     @Autowired
+    TicketRepository tRepository;
+    @Autowired
     TicketService tService;
 
     private static Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
@@ -69,39 +72,48 @@ public class SaleRowController {
 
     @PostMapping(produces = "application/hal+json")
     ResponseEntity<?> add(@RequestBody JsonNode requestBody) {
+        SaleEvent saleEvent = null;
+        if (requestBody.has("saleEvent")) {
+            saleEvent = sERepository.findById(getIdFromUri(requestBody.get("saleEvent").textValue()))
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid saleEvent ID"));
+            if (saleEvent.getInvalid() != null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot create SaleRow for SaleEvent that is marked as deleted");
+            }
+        }
         try {
-            SaleEvent saleEvent = null;
-            EventTicket eventTicket = null;
-            if (requestBody.has("saleEvent")) {
-                saleEvent = sERepository.findById(getIdFromUri(requestBody.get("saleEvent").textValue()))
-                    .orElseThrow(() -> new ResourceNotFoundException("Invalid ID"));
-                if (saleEvent.getInvalid() != null) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot create SaleRow for SaleEvent that is marked as deleted");
+            if (requestBody.has("saleRows")) {
+                List<SaleRow> saleRows = new ArrayList<>(); 
+                JsonNode saleRowNode = requestBody.get("saleRows");
+                for (JsonNode jsonNode : saleRowNode) {
+                    EventTicket eventTicket = null;
+                    if (jsonNode.has("eventTicket")) {
+                        eventTicket = etRepository.findById(getIdFromUri(jsonNode.get("eventTicket").textValue()))
+                            .orElseThrow(() -> new ResourceNotFoundException("Invalid eventTicket ID"));
+                        if (eventTicket.getInvalid() != null) {
+                            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot create SaleRow with EventTicket that is marked as deleted");
+                        }
+                    }
+                    Long discount = jsonNode.has("discount") ? jsonNode.get("discount").asLong() : 0;
+                    SaleRow newSaleRow = new SaleRow(saleEvent, discount);
+                    Set<ConstraintViolation<Object>> violations = validator.validate(newSaleRow);
+                    if (!violations.isEmpty()) {
+                        ConstraintViolationParser constraintViolationParser = new ConstraintViolationParser(violations, HttpStatus.BAD_REQUEST);
+                        return ResponseEntity.badRequest().body(constraintViolationParser.parse());
+                    }
+                    SaleRow saleRow = sRRepository.save(newSaleRow);
+                    ResponseEntity<?> response = tService.generateTickets(saleRow, eventTicket, jsonNode.get("count").asLong());
+                    if (response.getStatusCode() == HttpStatus.BAD_REQUEST) {
+                        return response;
+                    }
+                    SaleRowLinks links = new SaleRowLinks(saleRow);
+                    saleRow.add(links.getAll());
+                    saleRows.add(saleRow);
                 }
+                Resources<SaleRow> resources = new Resources<SaleRow>(saleRows);
+            return ResponseEntity.ok(resources);
+            } else {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Missing saleRow from json body");
             }
-            if (requestBody.has("eventTicket")) {
-                eventTicket = etRepository.findById(getIdFromUri(requestBody.get("eventTicket").textValue()))
-                    .orElseThrow(() -> new ResourceNotFoundException("Invalid ID"));
-                if (eventTicket.getInvalid() != null) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot create SaleRow with EventTicket that is marked as deleted");
-                }
-            }
-            Long discount = requestBody.has("discount") ? requestBody.get("discount").asLong() : 0;
-            SaleRow newSaleRow = new SaleRow(saleEvent, discount);
-            Set<ConstraintViolation<Object>> violations = validator.validate(newSaleRow);
-            if (!violations.isEmpty()) {
-                ConstraintViolationParser constraintViolationParser = new ConstraintViolationParser(violations, HttpStatus.BAD_REQUEST);
-                return ResponseEntity.badRequest().body(constraintViolationParser.parse());
-            }
-            SaleRow saleRow = sRRepository.save(newSaleRow);
-            ResponseEntity<?> response = tService.generateTickets(saleRow, eventTicket, requestBody.get("count").asLong());
-            if (response.getStatusCode() == HttpStatus.BAD_REQUEST) {
-                return response;
-            }
-            SaleRowLinks links = new SaleRowLinks(saleRow);
-            saleRow.add(links.getAll());
-            Resource<SaleRow> resource = new Resource<SaleRow>(saleRow);
-            return ResponseEntity.created(URI.create(saleRow.getId().getHref())).body(resource);
         } catch (DataIntegrityViolationException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Duplicate entry");
         } catch (IllegalArgumentException e) {
@@ -143,7 +155,10 @@ public class SaleRowController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot modify SaleRow that is marked as deleted");
         }
     	saleRow.setInvalid();
-    	sRRepository.save(saleRow);
+        sRRepository.save(saleRow);
+        for (Ticket ticket : saleRow.getTickets()) {
+            tRepository.save(ticket);
+        }
     	return ResponseEntity.noContent().build();
     }
 

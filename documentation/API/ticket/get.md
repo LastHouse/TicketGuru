@@ -126,7 +126,7 @@ Get a single Ticket the active User can access with current permission level.
 
 Validate a ticket.
 
-**URL** : `https://rbmk-ticketguru-backend.herokuapp.com/api/tickets/{checksum}`
+**URL** : `https://rbmk-ticketguru-backend.herokuapp.com/api/tickets/validate/{checksum}`
 
 **Method** : `GET`
 

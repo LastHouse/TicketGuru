@@ -30,6 +30,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import fi.rbmk.ticketguru.eventType.*;
+import fi.rbmk.ticketguru.ticket.Ticket;
+import fi.rbmk.ticketguru.ticket.TicketRepository;
 import fi.rbmk.ticketguru.eventOrganizer.*;
 import fi.rbmk.ticketguru.eventTicket.*;
 import fi.rbmk.ticketguru.venue.*;
@@ -52,6 +54,8 @@ public class EventController {
     AgeLimitRepository alRepository;
     @Autowired
     EventTicketRepository eventTicketRepository;
+    @Autowired
+    TicketRepository tRepository;
 
     private static Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
 
@@ -85,11 +89,6 @@ public class EventController {
         Event event = eRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Invalid ID: " + id));
         if (event.getInvalid() != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot modify Event that is marked as deleted");
-        }
-        Set<ConstraintViolation<Object>> violations = validator.validate(newEvent);
-        if (!violations.isEmpty()) {
-            ConstraintViolationParser constraintViolationParser = new ConstraintViolationParser(violations, HttpStatus.BAD_REQUEST);
-            return ResponseEntity.badRequest().body(constraintViolationParser.parse());
         }
         if (newEvent.getName() != null && newEvent.getName() != event.getName()) {
             event.setName(newEvent.getName());
@@ -127,6 +126,11 @@ public class EventController {
         if (newEvent.getInfo() != null && newEvent.getInfo() != event.getInfo()) {
             event.setInfo(newEvent.getInfo());
         }
+        Set<ConstraintViolation<Object>> violations = validator.validate(event);
+        if (!violations.isEmpty()) {
+            ConstraintViolationParser constraintViolationParser = new ConstraintViolationParser(violations, HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().body(constraintViolationParser.parse());
+        }
         eRepository.save(event);
         EventLinks links = new EventLinks(event);
         event.add(links.getAll());
@@ -142,6 +146,14 @@ public class EventController {
         }
         event.setInvalid();
         eRepository.save(event);
+        for (EventTicket eventTicket : event.getEventTickets()) {
+            eventTicket.setInvalid();
+            eventTicketRepository.save(eventTicket);
+            for (Ticket ticket : eventTicket.getTickets()) {
+                ticket.setInvalid();
+                tRepository.save(ticket);
+            }
+        }
         return ResponseEntity.noContent().build();
     }
 

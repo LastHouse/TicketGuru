@@ -1,10 +1,13 @@
 package fi.rbmk.ticketguru.eventTicket;
 
 import fi.rbmk.ticketguru.event.Event;
+import fi.rbmk.ticketguru.ticket.Ticket;
 import fi.rbmk.ticketguru.ticketType.TicketType;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -17,6 +20,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.hateoas.ResourceSupport;
 
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.JoinColumn;
 
 @Entity
@@ -51,6 +55,9 @@ public class EventTicket extends ResourceSupport {
     @JoinColumn(name = "ticket_type_id")
     private TicketType ticketType;
 
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "eventTicket")
+	private List<Ticket> tickets;
+
     public EventTicket() {
         super();
     }
@@ -66,6 +73,7 @@ public class EventTicket extends ResourceSupport {
     public LocalDateTime getInvalid() { return invalid; }
     public Event getEvent() { return event; }
     public TicketType getTicketType() { return ticketType; }
+    public List<Ticket> getTickets() { return tickets; }
 
     // Setters
     public void setEventTicket_ID(Long id) { this.eventTicket_id = id; }

@@ -57,7 +57,7 @@ Get all TicketStatuses the active User can access with current permission level.
 ```
 </br>
 
-**Condition** : No TicketStatuses. (Miten tän saa tarkistettua? Pitääkö tuhota ensin kaikki lipputilat?)
+**Condition** : No TicketStatuses.
 
 **Code** : `404 Not Found`
 

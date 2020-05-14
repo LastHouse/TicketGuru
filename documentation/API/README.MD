@@ -21,6 +21,10 @@ Each endpoint manipulates or displays information::
 * [Events](event/post.md) : `POST /api/events/`
 * [Events](event/patch.md) : `PATCH /api/events/{id}`
 * [Events](event/delete.md) : `DELETE /api/events/{id}`
+* [SaleEvents](saleEvents/get.md) : `GET /api/saleEvents/`
+* [saleEvents](saleEvents/post.md) : `POST /api/saleEvents/`
+* [saleEvents](saleEvents/patch.md) : `PATCH /api/saleEvents/{id}`
+* [saleEvents](saleEvents/delete.md) : `DELETE /api/saleEvents/{id}`
 * [SaleRows](salerow/get.md) : `GET /api/saleRows/`
 * [SaleRows](salerow/post.md) : `POST /api/saleRows/`
 * [SaleRows](salerow/patch.md) : `PATCH /api/saleRows/{id}`
@@ -40,6 +44,14 @@ Each endpoint manipulates or displays information::
 * [EventOrganizers](eventorganizer/post.md) : `POST /api/eventOrganizers/`
 * [EventOrganizers](eventorganizer/patch.md) : `PATCH /api/eventOrganizers/{id}`
 * [EventOrganizers](eventorganizer/delete.md) : `DELETE /api/eventOrganizers/{id}`
+* [EventTickets](eventTicket/get.md) : `GET /api/EventTicket/`
+* [EventTickets](eventTicket/post.md) : `POST /api/eventTickets/`
+* [EventTickets](eventTicket/patch.md) : `PATCH /api/eventTickets/{id}`
+* [EventTickets](eventTicket/delete.md) : `DELETE /api/eventTickets/{id}`
+* [Postcodes](postcode/get.md) : `GET /api/postcodes/`
+* [Postcodes](postcode/post.md) : `POST /api/postcodes/`
+* [Postcodes](postcode/patch.md) : `PATCH /api/postcodes/{id}`
+* [Postcodes](postcode/delete.md) : `DELETE /api/postcodes/{id}`
 * [AgeLimits](agelimit/get.md) : `GET /api/ageLimits/`
 * [AgeLimits](agelimit/post.md) : `POST /api/ageLimits/`
 * [AgeLimits](agelimit/patch.md) : `PATCH /api/ageLimits/{id}`
@@ -52,3 +64,7 @@ Each endpoint manipulates or displays information::
 * [TicketStatuses](ticketstatus/post.md) : `POST /api/ticketStatuses/`
 * [TicketStatuses](ticketstatus/patch.md) : `PATCH /api/ticketStatuses/{id}`
 * [TicketStatuses](ticketstatus/delete.md) : `DELETE /api/ticketStatuses/{id}`
+* [Venues](venue/get.md) : `GET /api/venues/`
+* [Venues](venue/post.md) : `POST /api/venues/`
+* [Venues](venue/patch.md) : `PATCH /api/venues/{id}`
+* [Venues](venue/delete.md) : `DELETE /api/venues/{id}`

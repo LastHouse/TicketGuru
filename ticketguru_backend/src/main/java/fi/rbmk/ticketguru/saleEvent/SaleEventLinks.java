@@ -9,7 +9,7 @@ import java.util.List;
 
 public class SaleEventLinks {
 
-    private Link selfLink, userLink, saleRowsLink;
+    private Link selfLink, userLink, saleRowsLink, ticketsLink;
     private List<Link> linkList;
 
     public SaleEventLinks(SaleEvent saleEvent) {
@@ -17,11 +17,13 @@ public class SaleEventLinks {
         this.selfLink = linkTo(SaleEventController.class).slash(id).withSelfRel();
         this.userLink = linkTo(methodOn(SaleEventController.class).getUser(id)).withRel("user");
         this.saleRowsLink = linkTo(methodOn(SaleEventController.class).getSaleRows(id)).withRel("saleRows");
+        this.ticketsLink = linkTo(methodOn(SaleEventController.class).getTickets(id)).withRel("tickets");
         // events
         this.linkList = Arrays.asList(
             selfLink,
             userLink,
-            saleRowsLink
+            saleRowsLink,
+            ticketsLink
         );
     }
 
@@ -29,5 +31,6 @@ public class SaleEventLinks {
     public Link getSelfLink() { return selfLink; }
     public Link getUserLink() { return userLink; }
     public Link getSaleRowsLink() { return saleRowsLink; }
+    public Link getTicketsLink() { return ticketsLink; }
     public List<Link> getAll() { return linkList; }
 }
