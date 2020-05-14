@@ -3,13 +3,11 @@ import { useAuthContext } from '../utils/AuthContext';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 import moment from 'moment/moment.js';
+import 'moment-timezone';
 import ReadTicket from '../components/ReadTicket';
 import TicketStatus from '../components/TicketStatus';
 import { makeStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
-import Input from '@material-ui/core/Input';
-
-export const TicketContext = React.createContext();
+import CssBaseline from '@material-ui/core/CssBaseline';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -91,7 +89,6 @@ export const Tickets = () => {
         }
       })
       .then((resJson) => {
-        console.log(resJson._embedded.tickets);
         dispatch({
           type: 'FETCH_TICKETS_SUCCESS',
           payload: resJson._embedded.tickets,
@@ -113,6 +110,19 @@ export const Tickets = () => {
       width: 60,
       accessor: '_links.self.href',
       Cell: (row) => <ReadTicket ticket={row.original} />,
+    },
+    {
+      id: 'created',
+      Header: 'Created',
+      style: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+      },
+      accessor: (row) =>
+        row.created === null
+          ? ''
+          : moment(row.created).format('DD/MM/YYYY  HH:mm'),
     },
     {
       Header: 'Checksum',
@@ -148,32 +158,13 @@ export const Tickets = () => {
 
   return (
     <div className={classes.root}>
+      <CssBaseline />
       {state.isFetching ? (
         <span className="loader">LOADING...</span>
       ) : state.hasError ? (
         <span className="error">AN ERROR HAS OCCURED</span>
       ) : (
-        <ReactTable
-          filterable={false}
-          data={state.tickets}
-          columns={columns}
-          SubComponent={(row) => {
-            return (
-              <div>
-                <Input
-                  align="center"
-                  type="number"
-                  id="quantity"
-                  name="quantity"
-                  defaultValue="1"
-                />
-                <Button size="small" variant="contained" color="primary">
-                  Testi
-                </Button>
-              </div>
-            );
-          }}
-        />
+        <ReactTable filterable={true} data={state.tickets} columns={columns} />
       )}
     </div>
   );
